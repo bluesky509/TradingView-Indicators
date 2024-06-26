@@ -1,4 +1,3 @@
-# setup.py
 from setuptools import setup, find_packages
 
 setup(
@@ -11,6 +10,8 @@ setup(
         'pandas'
         # Add other dependencies if necessary
     ],
-    description='A collection of TradingView indicators implemented in Python',,
+    description='A collection of TradingView indicators implemented in Python',
+    author='Author Name',
+    author_email='author@example.com',
     url='https://github.com/bluesky509/TradingView-Indicators',
 )
