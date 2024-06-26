@@ -19,8 +19,11 @@ def sma(source: pd.Series, length: int) -> pd.Series:
     pd.Series
         The calculated SMA time series data.
     """
+    if len(source) < length:
+        return pd.Series([], dtype=np.float64)
+    
     sma_series = source.rolling(length).mean()
-    return sma_series.dropna(axis=0)
+    return sma_series.dropna()
 
 def ema(source: pd.Series, length: int) -> pd.Series:
     """
@@ -29,23 +32,26 @@ def ema(source: pd.Series, length: int) -> pd.Series:
 
     Parameters:
     -----------
-    source : pandas.Series
+    source : pd.Series
         The time series data to calculate the EMA for.
     length : int
         The number of periods to include in the EMA calculation.
 
     Returns:
     --------
-    pandas.Series
+    pd.Series
         The calculated EMA time series data.
     """
+    if len(source) < length:
+        return pd.Series([], dtype=np.float64)
+    
     sma_series = source.rolling(window=length, min_periods=length).mean()[:length]
     rest = source[length:]
     return (
         pd.concat([sma_series, rest])
         .ewm(span=length, adjust=False)
         .mean()
-        .dropna(axis=0)
+        .dropna()
     )
 
 def sema(source: pd.Series, length: int, smooth: int) -> pd.Series:
@@ -55,7 +61,7 @@ def sema(source: pd.Series, length: int, smooth: int) -> pd.Series:
 
     Parameters:
     -----------
-    source : pandas.Series
+    source : pd.Series
         The time series data to calculate the SEMA for.
     length : int
         The number of periods to include in the SEMA calculation.
@@ -64,10 +70,12 @@ def sema(source: pd.Series, length: int, smooth: int) -> pd.Series:
 
     Returns:
     --------
-    pandas.Series
-        The calculeted SEMA time series data.
+    pd.Series
+        The calculated SEMA time series data.
     """
-
+    if len(source) < length:
+        return pd.Series([], dtype=np.float64)
+    
     emas_dict = {}
     emas_dict["source_1"] = ema(source, length)
     for value in range(2, smooth + 1):
@@ -77,12 +85,12 @@ def sema(source: pd.Series, length: int, smooth: int) -> pd.Series:
         )
     emas_df = pd.DataFrame(emas_dict)
     emas_df["sema"] = (
-        emas_df[emas_df.columns[:-1]].diff(axis=1).sum(axis=1) * - 1
+        emas_df[emas_df.columns[:-1]].diff(axis=1).sum(axis=1) * -1
         * smooth
         + emas_df[emas_df.columns[-1]]
     )
     sema_series = emas_df["sema"]
-    return sema_series.dropna(axis=0)
+    return sema_series.dropna()
 
 def _rma_pandas(
     source: pd.Series,
@@ -95,7 +103,7 @@ def _rma_pandas(
 
     Parameters:
     -----------
-    source : pandas.Series
+    source : pd.Series
         The time series data to calculate the RMA for.
     length : int
         The number of periods to include in the RMA calculation.
@@ -105,13 +113,16 @@ def _rma_pandas(
 
     Returns:
     --------
-    pandas.Series
+    pd.Series
         The calculated RMA time series data.
 
     Note:
     -----
     The first values are different from the TradingView RMA.
     """
+    if len(source) < length:
+        return pd.Series([], dtype=np.float64)
+    
     sma_series = (
         source
         .rolling(window=length, min_periods=length)
@@ -136,7 +147,7 @@ def _rma_python(
 
     Parameters:
     -----------
-    source : pandas.Series
+    source : pd.Series
         The time series data to calculate the RMA for.
     length : int
         The number of periods to include in the RMA calculation.
@@ -153,6 +164,9 @@ def _rma_python(
     both pandas and python versions will yield the same precision
     in initial values.
     """
+    if len(source) < length:
+        return pd.Series([], dtype=np.float64)
+    
     alpha = 1 / length
     source_pd = _rma_pandas(source, length)[:length]
     source_values = source[length:].to_numpy().tolist()
@@ -183,7 +197,7 @@ def rma(
 
     Parameters:
     -----------
-    source : pandas.Series
+    source : pd.Series
         The time series data to calculate the RMA for.
     length : int
         The number of periods to include in the RMA calculation.
@@ -192,9 +206,12 @@ def rma(
 
     Returns:
     --------
-    np.ndarray or pandas.Series
+    np.ndarray or pd.Series
         The calculated RMA time series data.
     """
+    if len(source) < length:
+        return pd.Series([], dtype=np.float64) if method == "pandas" else np.array([], dtype=np.float64)
+    
     match method:
         case "numpy":
             return _rma_python(source, length)
