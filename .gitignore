@@ -152,5 +152,5 @@ cython_debug/
 #.idea/
 
 # Setup
-setup.py
+#setup.py
 README.md
