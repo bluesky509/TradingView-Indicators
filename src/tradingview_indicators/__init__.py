@@ -1,13 +1,13 @@
 from .moving_average import sma, rma, ema, sema
-from .CCI import CCI
+from .CCI import ccc
 from .MACD import MACD
 from .RSI import RSI
 from .DMI import DMI
 from .TRIX import TRIX
-from .SMIO import SMIO
+from .SMIO import smi_osc
 from .slow_stoch import slow_stoch
 from .stoch import stoch
-from .ichimoku import Ichimoku
+from .ichimoku import ichimoku
 from .didi_index import didi_index
 from .tsi import tsi
 from .percent_rank import percentrank
@@ -21,3 +21,7 @@ from .array_sum import array_sum
 from .array_set import array_set
 from .array_new_float import array_new_float
 from .tame_poly_lsma import tame_poly_lsma
+from .bb import bb
+from .abs import abs_val
+from .atr import atr
+from .hma import hma

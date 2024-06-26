@@ -7,7 +7,7 @@ from .tsi import tsi
 from .errors_exceptions import InvalidArgumentError
 
 
-def SMIO(
+def smi_osc(
     source,
     long_length: int = 20,
     short_length: int = 5,

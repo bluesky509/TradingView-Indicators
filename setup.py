@@ -8,6 +8,7 @@ setup(
     install_requires=[
         'numpy',
         'pandas',
+        'numba',
         'fastdtw'
     ],
     description='A collection of TradingView indicators implemented in Python',

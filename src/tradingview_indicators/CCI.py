@@ -6,7 +6,7 @@ from .errors_exceptions import InvalidArgumentError
 from .moving_average import ema, sema, rma
 
 
-def CCI(
+def ccc(
     source: pd.Series,
     length: int = 20,
     constant: float = 0.015,

@@ -1,7 +1,9 @@
 from typing import Literal
 import pandas as pd
 import numpy as np
+from numba import njit
 
+# Simple Moving Average
 def sma(source: pd.Series, length: int) -> pd.Series:
     """
     Calculate the Simple Moving Average (SMA)
@@ -25,6 +27,31 @@ def sma(source: pd.Series, length: int) -> pd.Series:
     sma_series = source.rolling(length).mean()
     return sma_series.dropna()
 
+# Exponential Moving Average using Numba
+@njit
+def ema_numba(source: np.ndarray, length: int) -> np.ndarray:
+    """
+    Calculate the Exponential Moving Average (EMA) using Numba.
+
+    Parameters:
+    -----------
+    source : np.ndarray
+        The input array of values.
+    length : int
+        The number of periods to include in the EMA calculation.
+
+    Returns:
+    --------
+    np.ndarray
+        The calculated EMA values.
+    """
+    alpha = 2 / (length + 1)
+    ema_values = np.empty_like(source)
+    ema_values[0] = source[0]
+    for i in range(1, len(source)):
+        ema_values[i] = alpha * source[i] + (1 - alpha) * ema_values[i - 1]
+    return ema_values
+
 def ema(source: pd.Series, length: int) -> pd.Series:
     """
     Calculate the Exponential Moving Average (EMA)
@@ -45,15 +72,10 @@ def ema(source: pd.Series, length: int) -> pd.Series:
     if len(source) < length:
         return pd.Series([], dtype=np.float64)
     
-    sma_series = source.rolling(window=length, min_periods=length).mean()[:length]
-    rest = source[length:]
-    return (
-        pd.concat([sma_series, rest])
-        .ewm(span=length, adjust=False)
-        .mean()
-        .dropna()
-    )
+    ema_values = ema_numba(source.to_numpy(), length)
+    return pd.Series(ema_values, index=source.index).dropna()
 
+# Smoothed Exponential Moving Average
 def sema(source: pd.Series, length: int, smooth: int) -> pd.Series:
     """
     Calculate the Smoothed Exponential Moving Average (SEMA)
@@ -66,7 +88,7 @@ def sema(source: pd.Series, length: int, smooth: int) -> pd.Series:
     length : int
         The number of periods to include in the SEMA calculation.
     smooth : int
-        The smooth of EMAs to calculate.
+        The number of EMAs to smooth.
 
     Returns:
     --------
@@ -92,6 +114,7 @@ def sema(source: pd.Series, length: int, smooth: int) -> pd.Series:
     sema_series = emas_df["sema"]
     return sema_series.dropna()
 
+# Relative Moving Average using Pandas
 def _rma_pandas(
     source: pd.Series,
     length: int,
@@ -99,7 +122,7 @@ def _rma_pandas(
 ) -> pd.Series:
     """
     Calculate the Relative Moving Average (RMA) of the input time series
-    data.
+    data using Pandas.
 
     Parameters:
     -----------
@@ -137,60 +160,37 @@ def _rma_pandas(
         .mean()
     ).rename("RMA")
 
-def _rma_python(
-    source: pd.Series,
-    length: int
-) -> pd.Series:
+# Relative Moving Average using Numba
+@njit
+def _rma_numba(source: np.ndarray, length: int) -> np.ndarray:
     """
     Calculate the Relative Moving Average (RMA) of the input time series
-    data using pure python.
+    data using Numba.
 
     Parameters:
     -----------
-    source : pd.Series
-        The time series data to calculate the RMA for.
+    source : np.ndarray
+        The input array of values.
     length : int
         The number of periods to include in the RMA calculation.
 
     Returns:
     --------
-    pd.Series
-        The calculated RMA time series data.
-
-    Note:
-    -----
-    The pure python version is the only one with precision in the
-    initial RMA values. However, with the simple RMA version,
-    both pandas and python versions will yield the same precision
-    in initial values.
+    np.ndarray
+        The calculated RMA values.
     """
-    if len(source) < length:
-        return pd.Series([], dtype=np.float64)
-    
     alpha = 1 / length
-    source_pd = _rma_pandas(source, length)[:length]
-    source_values = source[length:].to_numpy().tolist()
-
-    rma_series = float(source_pd.dropna().iloc[0])
-    rma_list = [rma_series]
-
-    for source_value in source_values:
-        rma_series = alpha * source_value + (1 - alpha) * rma_series
-        rma_list.append(rma_series)
-
-    rma_series = pd.Series(
-        rma_list,
-        name="RMA",
-        index=source[length - 1:].index
-    )
-
-    return rma_series
+    rma_values = np.empty_like(source)
+    rma_values[0] = np.mean(source[:length])
+    for i in range(1, len(source)):
+        rma_values[i] = alpha * source[i] + (1 - alpha) * rma_values[i - 1]
+    return rma_values
 
 def rma(
     source: pd.Series,
     length: int,
-    method: Literal["numpy", "pandas"] = "numpy"
-) -> np.ndarray | pd.Series:
+    method: Literal["numba", "pandas"] = "numba"
+) -> pd.Series:
     """
     Calculate the Relative Moving Average (RMA) of the input time series
     data.
@@ -201,21 +201,22 @@ def rma(
         The time series data to calculate the RMA for.
     length : int
         The number of periods to include in the RMA calculation.
-    method : {"numpy", "pandas"}, optional
-        The method to use for calculating the RMA, by default "numpy".
+    method : {"numba", "pandas"}, optional
+        The method to use for calculating the RMA, by default "numba".
 
     Returns:
     --------
-    np.ndarray or pd.Series
+    pd.Series
         The calculated RMA time series data.
     """
     if len(source) < length:
-        return pd.Series([], dtype=np.float64) if method == "pandas" else np.array([], dtype=np.float64)
+        return pd.Series([], dtype=np.float64)
     
     match method:
-        case "numpy":
-            return _rma_python(source, length)
+        case "numba":
+            rma_values = _rma_numba(source.to_numpy(), length)
+            return pd.Series(rma_values, index=source.index).dropna()
         case "pandas":
             return _rma_pandas(source, length)
         case _:
-            raise TypeError("method must be 'numpy' or 'pandas'")
+            raise TypeError("method must be 'numba' or 'pandas'")
