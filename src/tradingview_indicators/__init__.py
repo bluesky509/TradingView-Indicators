@@ -16,3 +16,7 @@ from .crossunder import crossunder
 from .zscore_ema import zscore_ema
 from .wma import wma
 from .linreg import linreg
+from .math_sin import math_sin
+from .array_sum import array_sum
+from .array_set import array_set
+from .array_new_float import array_new_float
