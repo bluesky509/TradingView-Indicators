@@ -7,11 +7,11 @@ setup(
     package_dir={'': 'src'},
     install_requires=[
         'numpy',
-        'pandas'
-        # Add other dependencies if necessary
+        'pandas',
+        'fastdtw'
     ],
     description='A collection of TradingView indicators implemented in Python',
-    author='Author Name',
-    author_email='author@example.com',
+    author='Author',
+    author_email='no@example.com',
     url='https://github.com/bluesky509/TradingView-Indicators',
 )

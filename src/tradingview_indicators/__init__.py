@@ -10,4 +10,4 @@ from .stoch import stoch
 from .ichimoku import Ichimoku
 from .didi_index import didi_index
 from .tsi import tsi
-from .percentrank import percentrank
+from .percent_rank import percentrank
