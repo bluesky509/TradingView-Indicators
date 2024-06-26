@@ -20,3 +20,4 @@ from .math_sin import math_sin
 from .array_sum import array_sum
 from .array_set import array_set
 from .array_new_float import array_new_float
+from .tame_poly_lsma import tame_poly_lsma

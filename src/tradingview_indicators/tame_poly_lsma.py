@@ -4,7 +4,6 @@ from .array_new_float import array_new_float
 from .array_set import array_set
 from .array_sum import array_sum
 from .math_sin import math_sin
-# https://www.tradingview.com/script/HohthhMP-Tame-Polynomial-LSMA-Estimation/
 
 # Sigma approximation function
 def s(i, h):
@@ -25,7 +24,7 @@ def kernel(x, order):
 # Main Polynomial LSMA Function
 def tame_poly_lsma(src, length, order):
     if length > len(src):
-        raise ValueError("Length parameter cannot be greater than the length of the source data")
+        raise ValueError("Length cannot be greater than length of source")
 
     w = array_new_float(length)
     for i in range(1, length + 1):
