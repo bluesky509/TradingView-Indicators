@@ -9,6 +9,7 @@ setup(
         'numpy',
         'pandas',
         'numba',
+        'scipy',
         'fastdtw'
     ],
     description='A collection of TradingView indicators implemented in Python',

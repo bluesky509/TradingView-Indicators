@@ -1,5 +1,5 @@
 from .moving_average import sma, rma, ema, sema
-from .CCI import ccc
+from .cci import ccc
 from .MACD import MACD
 from .RSI import RSI
 from .DMI import DMI
@@ -14,6 +14,7 @@ from .percent_rank import percentrank
 from .crossover import crossover
 from .crossunder import crossunder
 from .zscore_ema import zscore_ema
+from .zscore import zscore
 from .wma import wma
 from .linreg import linreg
 from .math_sin import math_sin
@@ -25,3 +26,8 @@ from .bb import bb
 from .abs import abs_val
 from .atr import atr
 from .hma import hma
+from .nz import nz
+from .na import na
+from .cum import cum
+from .fixnan import fixnan
+from .correlation import correlation
