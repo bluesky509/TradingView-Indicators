@@ -9,11 +9,9 @@ The initial objective of this repository was to create technical analysis indica
 
 ## Installation
 
-To install TradingView Indicators, you need to use the package manager [pip](https://pip.pypa.io/en/stable/):
-
+...
 ```
-pip install tradingview-indicators
-```
+...```
 
 
 ## Example
